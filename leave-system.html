@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบลาข้าราชการครู โรงเรียนสระแก้ว</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --green:#2f7d4f; --green-dark:#1f5c38; --green-soft:#eaf4ee;
+  --yellow:#f6c926; --yellow-soft:#fff8d9;
+  --field-h:48px; --bar-h:96px; --ink:#22302a; --muted:#6b7a72; --line:#e3e9e5; --bg:#fbfcfa;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+header{color:#fff;padding:16px 16px 0}
+header .wrap{max-width:928px;width:100%;height:var(--bar-h);margin:0 auto;padding:0 20px;background:var(--green);border-bottom:3px solid var(--yellow);border-radius:12px}
+header h1{margin:0;font-size:1rem;line-height:1.2;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
+header h1::before{content:"";width:6px;height:20px;background:var(--yellow);border-radius:3px}
+header p{margin:0;font-size:.85rem;font-weight:400;color:#fff;opacity:.85}
+header .btn-yellow{background:var(--yellow);color:#3a3000;padding:0 14px;height:34px;font-size:.85rem}
+main{max-width:960px;margin:0 auto;padding:24px 16px 24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:24px}
+.card h2{margin:0 0 16px;font-size:1.15rem;font-weight:600;color:var(--green-dark);display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:6px;height:20px;background:var(--yellow);border-radius:3px}
+label{display:block;font-size:.9rem;font-weight:500;margin-bottom:4px}
+input,select{width:100%;height:var(--field-h);padding:0 12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--yellow);border-color:var(--green)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full{grid-column:1/-1}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.days{background:var(--yellow-soft);border:1px solid var(--yellow);border-radius:8px;padding:10px 12px;font-weight:500;min-height:44px}
+button{font:inherit;font-weight:500;border:0;border-radius:8px;padding:11px 22px;cursor:pointer;transition:.15s}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-dark)}
+.btn-primary:disabled{opacity:.6;cursor:wait}
+.btn-yellow{background:var(--yellow);color:#3a3000}
+.btn-yellow:hover{filter:brightness(.95)}
+.btn-danger{background:#fff;color:#b3402f;border:1px solid #e3b5ac}
+.msg{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:.92rem;display:none;word-break:break-all}
+.msg.ok{display:block;background:var(--green-soft);color:var(--green-dark)}
+.msg.err{display:block;background:#fdecea;color:#a3321f}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{text-align:left;background:var(--green-soft);color:var(--green-dark);font-weight:600;padding:10px 12px}
+td{padding:10px 12px;border-bottom:1px solid var(--line)}
+.table-wrap{overflow-x:auto}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.78rem;font-weight:500}
+.b-p1{background:var(--yellow-soft);color:#7a5f00}
+.b-p2{background:#fff0c2;color:#7a5200}
+.b-ok{background:var(--green-soft);color:var(--green-dark)}
+.empty{color:var(--muted);text-align:center;padding:18px}
+.head-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.head-row h2{margin:0}
+.day-row{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.day-date{min-width:150px;font-weight:600;color:var(--green-dark)}
+.day-row.today{background:var(--yellow-soft);border-radius:8px;padding-left:10px;padding-right:10px}
+.free{color:var(--muted);font-size:.9rem}
+@media(max-width:640px){.day-row{flex-direction:column;gap:4px}.day-date{min-width:0}}
+.chip{display:inline-block;background:var(--green-soft);border-radius:8px;padding:3px 10px;margin:2px 6px 2px 0;font-size:.88rem}
+.detail dt{color:var(--muted);font-size:.85rem}
+.detail dd{margin:0 0 10px;font-weight:500}
+.actions{display:flex;gap:10px;margin-top:10px}
+.hidden{display:none}
+input[type=file]{height:auto;min-height:var(--field-h);padding:9px 12px}
+.sig-prev{margin-top:8px;max-height:120px;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;display:none}
+.sig-prev.show{display:block}
+.sig-img{max-height:140px;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff}
+footer{display:flex;align-items:center;justify-content:center;width:calc(100% - 32px);max-width:928px;height:var(--bar-h);margin:0 auto 16px;background:var(--green);color:#fff;border-top:3px solid var(--yellow);border-radius:12px;font-size:.8rem;padding:0 16px}
+
+/* ส่วนหัว + ปุ่มเข้าสู่ระบบ */
+.hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:nowrap}
+.hdr-title{display:flex;align-items:center;gap:10px;min-width:0}
+.hdr-title p::before{content:'\00b7';margin-right:10px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.me{font-size:.8rem;font-weight:500;white-space:nowrap}
+.me.hidden{display:none}
+/* ส่วนผู้อนุมัติ */
+.muted{color:var(--muted)}
+/* ตารางล่วงหน้า 7 วัน (แถว = วันที่, คอลัมน์ = ประเภทการลา) */
+.mx{min-width:900px;font-size:.82rem}
+.mx th,.mx td{border:1px solid #4a5a52;padding:6px;text-align:center;vertical-align:top}
+.mx th{background:#fff;color:var(--ink);font-weight:500}
+.mx th.mx-type{vertical-align:middle;line-height:1.3}
+.mx th.mx-date,.mx td.mx-date{white-space:nowrap;width:112px;vertical-align:middle}
+.mx td.mx-date{font-weight:500}
+.mx tr.today td.mx-date{background:var(--yellow-soft);font-weight:600}
+.mx-cell{min-width:68px;height:34px}
+.mx-name{line-height:1.35;margin:2px 0}
+.mx-pend{display:block;font-size:.68rem;opacity:.75}
+.mx .x{margin:2px 0 0}
+.small{font-size:.85rem}
+.sm{padding:6px 14px;font-size:.85rem}
+.pend{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.pend-act{display:flex;gap:8px;flex-wrap:wrap}
+.x{background:none;border:1px solid #e3b5ac;color:#b3402f;border-radius:6px;padding:0 8px;margin-left:4px;font-size:.75rem}
+.x:hover{background:#fdecea}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+/* หน้าต่าง pop up */
+.modal-back{position:fixed;inset:0;background:rgba(20,30,25,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal-back.hidden{display:none}
+.modal{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:460px;max-height:90vh;overflow:auto}
+.modal h2{margin:0 0 12px;font-size:1.15rem;font-weight:600;color:var(--green-dark)}
+.modal label{margin-top:10px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+/* หน้ารายงาน PDF (ซ่อนนอกจอ ใช้แปลงเป็น PDF) */
+.rp-stage{position:fixed;left:-10000px;top:0;z-index:-1}
+.rp-page{width:794px;height:1123px;background:#fff;color:#000;padding:40px 40px 28px;display:flex;flex-direction:column;font-family:'Noto Sans Thai',sans-serif;box-sizing:border-box;margin-bottom:20px}
+.rp-body{flex:1;min-height:0;overflow:hidden}
+.rp-title{font-size:22px;font-weight:600;color:#1f5c38}
+.rp-sub{font-size:14px;margin-top:2px}
+.rp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px;table-layout:fixed}
+.rp-table th{background:#eaf4ee;color:#1f5c38;padding:6px 8px;border:1px solid #cfd9d3;text-align:left;font-weight:600}
+.rp-table td{padding:6px 8px;border:1px solid #dfe6e2;vertical-align:top;word-break:break-word}
+.rp-foot{display:flex;justify-content:space-between;font-size:11px;color:#6b7a72;border-top:1px solid #cfd9d3;padding-top:6px;margin-top:8px}
+.rp-sum{margin-top:14px;font-size:13px;font-weight:500}
+.rp-note{font-size:11px;color:#6b7a72;margin-top:4px}
+</style>
+</head>
+<body>
+<header><div class="wrap hdr">
+  <div class="hdr-title">
+    <h1>ระบบลาข้าราชการครู</h1>
+    <p>โรงเรียนสระแก้ว</p>
+  </div>
+  <div class="hdr-right">
+    <span id="meLabel" class="me hidden"></span>
+    <button class="btn-yellow" id="authBtn" type="button">เข้าสู่ระบบผู้อนุมัติ</button>
+  </div>
+</div></header>
+
+<main>
+  <!-- หน้าอนุมัติ (เปิดจากลิงก์ในอีเมล) -->
+  <section id="approveView" class="card hidden">
+    <h2>พิจารณาคำขอลา</h2>
+    <div id="approveBody"></div>
+  </section>
+
+  <!-- หน้าหลัก -->
+  <div id="mainView">
+    <!-- เห็นเฉพาะผู้อนุมัติที่เข้าสู่ระบบ -->
+    <section class="card approver-only hidden" id="pendingCard">
+      <h2>รายการรออนุมัติ</h2>
+      <div id="pendingList"></div>
+      <div id="panelMsg" class="msg"></div>
+    </section>
+
+    <section class="card">
+      <h2>แบบขอลา</h2>
+      <form id="leaveForm" class="grid">
+        <div class="full">
+          <label for="name">ชื่อครูผู้ลา</label>
+          <input id="name" required placeholder="เช่น นายสมชาย ใจดี">
+        </div>
+        <div class="full">
+          <label for="sig">แนบลายเซ็นต์ครูผู้ลา</label>
+          <input id="sig" type="file" accept="image/*" required>
+          <img id="sigPrev" class="sig-prev" alt="ตัวอย่างลายเซ็นต์">
+        </div>
+        <div class="full">
+          <label for="type">ประเภทการลา</label>
+          <select id="type" required>
+            <option value="">— เลือกประเภทการลา —</option>
+            <option>ลาป่วย</option>
+            <option>ลากิจส่วนตัว</option>
+            <option>ลาคลอดบุตร</option>
+            <option>การลาไปช่วยเหลือภริยาที่คลอดบุตร</option>
+            <option>การลาพักผ่อน</option>
+            <option>การลาอุปสมบทหรือการลาไปประกอบพิธีฮัจย์</option>
+            <option>การลาเข้ารับการตรวจเลือกหรือเข้ารับการเตรียมพล</option>
+            <option>การลาไปศึกษา ฝึกอบรม ปฏิบัติการวิจัย หรือดูงาน</option>
+            <option>การลาไปปฏิบัติงานในองค์การระหว่างประเทศ</option>
+            <option>การลาติดตามคู่สมรส</option>
+            <option>การลาไปฟื้นฟูสมรรถภาพด้านอาชีพ</option>
+          </select>
+        </div>
+        <div>
+          <label for="start">วันที่เริ่มลา</label>
+          <input id="start" type="date" required>
+        </div>
+        <div>
+          <label for="ret">วันที่กลับมาปฏิบัติราชการ</label>
+          <input id="ret" type="date" required>
+        </div>
+        <div class="full">
+          <label>จำนวนวันลา</label>
+          <div class="days" id="daysOut">—</div>
+        </div>
+        <div class="full">
+          <button class="btn-primary" id="submitBtn" type="submit">ส่งคำขอลา</button>
+          <div id="formMsg" class="msg"></div>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>ตารางการลา ล่วงหน้า 7 วัน</h2>
+      <div id="upcomingList"></div>
+      <p class="muted small" style="margin:10px 0 0">ชื่อที่มีข้อความ "รออนุมัติ" กำกับ คือคำขอที่ยังอยู่ระหว่างพิจารณา · ช่องว่าง = ไม่มีการลา</p>
+    </section>
+
+    <section class="card">
+      <div class="head-row">
+        <h2>การลาทั้งหมด ล่วงหน้า 2 เดือน</h2>
+        <button class="btn-yellow" id="toggleAll">แสดงการลาทั้งหมด</button>
+      </div>
+      <div id="allList" class="hidden"></div>
+    </section>
+
+    <section class="card approver-only hidden" id="reportCard">
+      <h2>รายงานการลา</h2>
+      <p class="muted small" style="margin-top:0">เลือกช่วงวันที่ (ย้อนหลังและล่วงหน้าได้ไม่เกิน 3 เดือน) แล้วบันทึกเป็นไฟล์ PDF</p>
+      <button class="btn-yellow" id="reportBtn" type="button">รายงานการลา</button>
+    </section>
+  </div>
+</main>
+<footer>ระบบลาข้าราชการครู โรงเรียนสระแก้ว</footer>
+
+<!-- pop up เข้าสู่ระบบผู้อนุมัติ -->
+<div class="modal-back hidden" id="loginModal"><div class="modal" role="dialog" aria-modal="true">
+  <h2>เข้าสู่ระบบผู้อนุมัติ</h2>
+  <form id="loginForm">
+    <label for="lgEmail">อีเมล</label>
+    <input id="lgEmail" type="email" required autocomplete="username">
+    <label for="lgPass">รหัสผ่าน</label>
+    <input id="lgPass" type="password" required autocomplete="current-password">
+    <div id="lgMsg" class="msg"></div>
+    <p class="muted small" id="lgHint"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" data-close>ยกเลิก</button>
+      <button class="btn-primary" id="lgBtn" type="submit">เข้าสู่ระบบ</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- pop up รายงานการลา -->
+<div class="modal-back hidden" id="reportModal"><div class="modal" role="dialog" aria-modal="true">
+  <h2>รายงานการลา</h2>
+  <p class="muted small" style="margin-top:0">เลือกช่วงวันที่ที่ต้องการ (ย้อนหลัง 3 เดือน ถึงล่วงหน้า 3 เดือน)</p>
+  <div class="grid">
+    <div><label for="rpFrom">ตั้งแต่วันที่</label><input id="rpFrom" type="date"></div>
+    <div><label for="rpTo">ถึงวันที่</label><input id="rpTo" type="date"></div>
+  </div>
+  <div id="rpMsg" class="msg"></div>
+  <div class="modal-actions">
+    <button type="button" class="btn-ghost" data-close>ยกเลิก</button>
+    <button type="button" class="btn-primary" id="rpBtn">บันทึกเป็น PDF</button>
+  </div>
+</div></div>
+<div class="modal-back hidden" id="sigModal"><div class="modal" role="dialog" aria-modal="true">
+  <h2>ลายเซ็นต์ครูผู้ลา</h2>
+  <div id="sigView"></div>
+  <div class="modal-actions"><button type="button" class="btn-ghost" data-close>ปิด</button></div>
+</div></div>
+<div id="rpStage" class="rp-stage"></div>
+
+<script type="module">
+/* ============================================================
+   ตั้งค่าระบบ  — แก้ค่าด้านล่างให้เป็นของโรงเรียน
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyClvnl95FR5BghR-mwA0BUncoNu4hiRfcw",
+  authDomain: "sk-leave-teacher.firebaseapp.com",
+  projectId: "sk-leave-teacher",
+  storageBucket: "sk-leave-teacher.firebasestorage.app",
+  messagingSenderId: "1066492094988",
+  appId: "1:1066492094988:web:a7e4ee045f4cfdd9f4dc29"
+};
+
+// อีเมลผู้อนุมัติ (ใช้ตัวพิมพ์เล็กทั้งหมด เพราะ Firebase เก็บอีเมลเป็นตัวพิมพ์เล็ก)
+// ขั้นแรก มี 2 คน (คนใดคนหนึ่งอนุมัติได้) / ขั้นสุดท้าย มี 1 คน
+const APPROVER1_LABEL = "ผู้อนุมัติขั้นแรก";
+const APPROVERS1 = [
+  { name: APPROVER1_LABEL, email: "chalaemsri@sakaeoschool.ac.th" },
+  { name: APPROVER1_LABEL, email: "phaththnanxathes656@gmail.com" }
+];
+const APPROVER2 = { name: "ผู้อนุมัติขั้นสุดท้าย", email: "juthamas@sakaeoschool.ac.th" };
+
+// การเข้าสู่ระบบผู้อนุมัติ
+// - โหมดจริง (ตั้งค่า Firebase แล้ว): ใช้ Firebase Authentication แบบ Email/Password
+//   ให้สร้างบัญชี 3 บัญชีในคอนโซล Firebase ด้วยอีเมลเดียวกับ APPROVERS1 (2 คน) / APPROVER2 (1 คน) ด้านบน
+// - โหมดทดสอบ (ยังไม่ตั้งค่า Firebase): ใช้รหัสผ่านด้านล่างนี้ (ไม่ปลอดภัย ใช้ทดสอบเท่านั้น)
+const DEMO_PASSWORD = "demo1234";
+
+// EmailJS (สมัครฟรีที่ emailjs.com) — เทมเพลตใช้ตัวแปร:
+// {{to_email}} {{to_name}} {{stage}} {{teacher_name}} {{leave_type}}
+// {{start_date}} {{return_date}} {{days}} {{approve_link}}
+const EMAILJS = { publicKey: "YOUR_EMAILJS_PUBLIC_KEY", serviceId: "YOUR_SERVICE_ID", templateId: "YOUR_TEMPLATE_ID" };
+
+// ที่เก็บรูปลายเซ็นต์ = Google Drive ผ่าน Google Apps Script (ดูไฟล์ signature-drive.gs)
+// ใส่ Web app URL ที่ได้จากการ Deploy; ถ้ายังไม่ตั้งค่า ระบบจะเก็บรูปไว้ในฐานข้อมูลแทน (โหมดทดสอบ)
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzpEswpLq_HwItk4w-rIHOXow677xBuX9xpuStdnDAJDdJEYi-_aFrHdk8WtJMlvd5hCw/exec";
+
+/* Firestore Rules แนะนำ:
+rules_version = '2';
+service cloud.firestore { match /databases/{db}/documents {
+  function isApprover() {
+    return request.auth != null
+      && request.auth.token.email in ['chalaemsri@sakaeoschool.ac.th','phaththnanxathes656@gmail.com','juthamas@sakaeoschool.ac.th'];
+  }
+  match /leaves/{id} { allow read: if true;
+    allow create: if request.resource.data.status == 'pending1';   // ใครก็ส่งคำขอลาได้ แต่ต้องเริ่มที่ขั้นแรก
+    allow update: if isApprover()                                    // แก้สถานะได้เฉพาะผู้อนุมัติที่เข้าสู่ระบบ
+      && request.resource.data.diff(resource.data).affectedKeys()
+         .hasOnly(['status','approved1At','approved2At','rejectedAt']);
+    allow delete: if isApprover(); }
+  match /secrets/{id} { allow create: if true;                       // สร้างตอนส่งคำขอลา (เก็บโทเคนและรหัสไฟล์ลายเซ็นต์ใน Drive)
+    allow get: if isApprover(); allow list: if false;
+    allow delete: if isApprover(); }
+}}
+*/
+
+/* ============================================================ */
+const DEMO = FIREBASE_CONFIG.apiKey.startsWith("YOUR");
+const DRIVE_MODE = !GAS_URL.startsWith("YOUR");
+const $ = id => document.getElementById(id);
+const STATUS = {
+  pending1: ["รออนุมัติขั้นแรก", "b-p1"],
+  pending2: ["รออนุมัติขั้นสุดท้าย", "b-p2"],
+  approved: ["อนุมัติแล้ว", "b-ok"]
+};
+
+/* ---------- ชั้นฐานข้อมูล (Firebase / โหมดทดสอบ localStorage) ---------- */
+let db = {}, authApi = {};
+if (!DEMO) {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  const fapp = initializeApp(FIREBASE_CONFIG);
+  const fdb = fs.getFirestore(fapp);
+  const au = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+  const fauth = au.getAuth(fapp);
+  authApi = {
+    async login(email, pw) { await au.signInWithEmailAndPassword(fauth, email, pw); },
+    async logout() { await au.signOut(fauth); },
+    async token() { return fauth.currentUser ? fauth.currentUser.getIdToken() : null; },
+    onChange(cb) { au.onAuthStateChanged(fauth, u => cb(u ? u.email : null)); }
+  };
+  db = {
+    async add(leave, secret) {
+      const ref = await fs.addDoc(fs.collection(fdb, "leaves"), leave);
+      await fs.setDoc(fs.doc(fdb, "secrets", ref.id), secret);
+      return ref.id;
+    },
+    async all() {
+      const s = await fs.getDocs(fs.collection(fdb, "leaves"));
+      return s.docs.map(d => ({ id: d.id, ...d.data() }));
+    },
+    async get(id) {
+      const d = await fs.getDoc(fs.doc(fdb, "leaves", id));
+      return d.exists() ? { id, ...d.data() } : null;
+    },
+    async secret(id) {
+      const d = await fs.getDoc(fs.doc(fdb, "secrets", id));
+      return d.exists() ? d.data() : null;
+    },
+    async update(id, data) { await fs.updateDoc(fs.doc(fdb, "leaves", id), data); },
+    async remove(id) {
+      // ลบรูปลายเซ็นต์ใน Drive ก่อน (ถ้าลบไม่สำเร็จจะหยุด และยังไม่ลบข้อมูล เพื่อให้ลองใหม่ได้)
+      let sec = null;
+      try { const d = await fs.getDoc(fs.doc(fdb, "secrets", id)); sec = d.exists() ? d.data() : null; }
+      catch (e) { console.warn(e); }
+      if (sec && sec.sigId) await deleteSignature(sec.sigId);
+      await fs.deleteDoc(fs.doc(fdb, "leaves", id));
+      try { await fs.deleteDoc(fs.doc(fdb, "secrets", id)); } catch (e) { console.warn(e); }
+    }
+  };
+} else {
+  const read = k => JSON.parse(localStorage.getItem(k) || "{}");
+  db = {
+    async add(leave, secret) {
+      const id = "demo" + Date.now();
+      const L = read("leaves"), S = read("secrets");
+      L[id] = leave; S[id] = secret;
+      localStorage.setItem("leaves", JSON.stringify(L));
+      localStorage.setItem("secrets", JSON.stringify(S));
+      return id;
+    },
+    async all() { return Object.entries(read("leaves")).map(([id, v]) => ({ id, ...v })); },
+    async get(id) { const v = read("leaves")[id]; return v ? { id, ...v } : null; },
+    async secret(id) { return read("secrets")[id] || null; },
+    async update(id, data) {
+      const L = read("leaves"); Object.assign(L[id], data);
+      localStorage.setItem("leaves", JSON.stringify(L));
+    },
+    async remove(id) {
+      const L = read("leaves"), S = read("secrets");
+      delete L[id]; delete S[id];
+      localStorage.setItem("leaves", JSON.stringify(L));
+      localStorage.setItem("secrets", JSON.stringify(S));
+    }
+  };
+  const cbs = [];
+  const cur = () => { try { return sessionStorage.getItem("approverEmail"); } catch (e) { return null; } };
+  authApi = {
+    async token() { return null; },
+    async login(email, pw) {
+      if (pw !== DEMO_PASSWORD) throw new Error("รหัสผ่านไม่ถูกต้อง");
+      try { sessionStorage.setItem("approverEmail", email.toLowerCase()); } catch (e) {}
+      cbs.forEach(f => f(cur()));
+    },
+    async logout() {
+      try { sessionStorage.removeItem("approverEmail"); } catch (e) {}
+      cbs.forEach(f => f(null));
+    },
+    onChange(cb) { cbs.push(cb); cb(cur()); }
+  };
+}
+
+/* ---------- ฟังก์ชันวันที่ ---------- */
+const toDate = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const thDate = s => toDate(s).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" });
+const thDateLong = d => d.toLocaleDateString("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const diffDays = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
+const today0 = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- ส่งอีเมล ---------- */
+async function sendMail(to, stage, leave, link) {
+  const params = {
+    to_email: to.email, to_name: to.name, stage,
+    teacher_name: leave.name, leave_type: leave.type,
+    start_date: thDate(leave.start), return_date: thDate(leave.ret),
+    days: leave.days, approve_link: link
+  };
+  if (DEMO || EMAILJS.publicKey.startsWith("YOUR")) { console.log("[DEMO email]", params); return false; }
+  await emailjs.send(EMAILJS.serviceId, EMAILJS.templateId, params, { publicKey: EMAILJS.publicKey });
+  return true;
+}
+const linkFor = (id, t) => `${location.origin}${location.pathname}?id=${id}&t=${t}`;
+
+/* ---------- อนุมัติ 1 ขั้น (ใช้ทั้งหน้าลิงก์อีเมลและแผงผู้อนุมัติ) ---------- */
+async function approveStep(id, stage, leave, secret) {
+  if (stage === 1) {
+    await db.update(id, { status: "pending2", approved1At: new Date().toISOString() });
+    const link = linkFor(id, secret.t2);
+    const sent = await sendMail(APPROVER2, "ขั้นสุดท้าย", leave, link);
+    return sent ? "อนุมัติแล้ว ระบบส่งอีเมลแจ้งผู้อนุมัติขั้นสุดท้ายเรียบร้อย"
+                : `อนุมัติแล้ว (โหมดทดสอบ) ลิงก์ผู้อนุมัติขั้นสุดท้าย: <a href="${link}">${link}</a>`;
+  }
+  await db.update(id, { status: "approved", approved2At: new Date().toISOString() });
+  return "อนุมัติขั้นสุดท้ายเรียบร้อย";
+}
+
+/* ---------- ลายเซ็นต์: ย่อรูปไม่เกิน 500 KB ก่อนบันทึก ---------- */
+const SIG_MAX_BYTES = 500 * 1024;            // รูปลายเซ็นต์ต้องไม่เกิน 500 KB
+const dataUrlBytes = d => Math.floor((d.length - d.indexOf(",") - 1) * 3 / 4);
+function fileToSignature(file, maxW = 800, maxH = 400) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) return reject(new Error("กรุณาเลือกไฟล์รูปภาพ"));
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let k = Math.min(1, maxW / img.width, maxH / img.height);
+      for (let round = 0; round < 8; round++) {
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+        const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+        g.drawImage(img, 0, 0, c.width, c.height);
+        for (let q = 0.85; q >= 0.4; q -= 0.15) {          // ลดคุณภาพก่อน
+          const data = c.toDataURL("image/jpeg", q);
+          if (dataUrlBytes(data) <= SIG_MAX_BYTES) return resolve(data);
+        }
+        k *= 0.75;                                          // ยังใหญ่อยู่ ลดขนาดภาพต่อ
+      }
+      reject(new Error("ย่อรูปให้ไม่เกิน 500 KB ไม่สำเร็จ กรุณาเลือกรูปอื่น"));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("เปิดไฟล์รูปไม่ได้")); };
+    img.src = url;
+  });
+}
+let SIG_BY_LEAVE = {};                 // leaveId -> data URL (ใช้ตอนสร้างรายงาน PDF)
+const SIG_CACHE = new Map();
+async function uploadSignature(dataUrl) {          // คืน {sigId} (Drive) หรือ {signature} (โหมดทดสอบ)
+  if (!DRIVE_MODE) return { signature: dataUrl };
+  const r = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ data: dataUrl }) });
+  const j = await r.json();
+  if (!j.id) throw new Error(j.error || "อัปโหลดลายเซ็นต์ไป Google Drive ไม่สำเร็จ");
+  return { sigId: j.id };
+}
+async function deleteSignature(sigId) {           // ลบไฟล์รูปลายเซ็นต์ใน Google Drive (เฉพาะผู้อนุมัติ)
+  if (!DRIVE_MODE || !sigId) return;
+  const token = await authApi.token();
+  const r = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "delete", id: sigId, token }) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "ลบรูปลายเซ็นต์ใน Google Drive ไม่สำเร็จ");
+  SIG_CACHE.delete(sigId);
+}
+async function getSignature(secret) {
+  if (!secret) return null;
+  if (secret.signature) return secret.signature;
+  if (!secret.sigId) return null;
+  if (SIG_CACHE.has(secret.sigId)) return SIG_CACHE.get(secret.sigId);
+  const token = await authApi.token();
+  const r = await fetch(`${GAS_URL}?id=${encodeURIComponent(secret.sigId)}&token=${encodeURIComponent(token || "")}`);
+  const j = await r.json();
+  if (!j.data) throw new Error(j.error || "โหลดลายเซ็นต์ไม่สำเร็จ");
+  SIG_CACHE.set(secret.sigId, j.data);
+  return j.data;
+}
+$("sig").addEventListener("change", async () => {
+  const pv = $("sigPrev"); pv.classList.remove("show");
+  const f = $("sig").files[0]; if (!f) return;
+  try { pv.src = await fileToSignature(f); pv.classList.add("show"); }
+  catch (err) { $("sig").value = ""; $("formMsg").className = "msg err"; $("formMsg").textContent = err.message; }
+});
+
+/* ---------- ฟอร์ม ---------- */
+function updateDays() {
+  const s = $("start").value, r = $("ret").value;
+  if (!s || !r) { $("daysOut").textContent = "—"; return null; }
+  const n = diffDays(s, r);
+  if (n <= 0) { $("daysOut").textContent = "วันที่กลับต้องหลังวันที่เริ่มลา"; return null; }
+  $("daysOut").textContent = `${n} วัน`;
+  return n;
+}
+$("start").addEventListener("change", () => {
+  $("ret").min = $("start").value; updateDays();
+});
+$("ret").addEventListener("change", updateDays);
+$("start").min = iso(today0());
+
+$("leaveForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("formMsg"); msg.className = "msg";
+  const days = updateDays();
+  if (!days) { msg.className = "msg err"; msg.textContent = "กรุณาตรวจสอบวันที่เริ่มลาและวันที่กลับมาปฏิบัติราชการ"; return; }
+  const btn = $("submitBtn"); btn.disabled = true; btn.textContent = "กำลังส่ง...";
+  try {
+    const leave = {
+      name: $("name").value.trim(), type: $("type").value,
+      start: $("start").value, ret: $("ret").value, days,
+      status: "pending1", createdAt: new Date().toISOString()
+    };
+    const sig = await uploadSignature(await fileToSignature($("sig").files[0]));
+    const secret = { t1: crypto.randomUUID(), t2: crypto.randomUUID(), ...sig };
+    const id = await db.add(leave, secret);
+    const link = linkFor(id, secret.t1);
+    const sentAll = await Promise.all(APPROVERS1.map(a => sendMail(a, "ขั้นแรก", leave, link)));
+    const sent = sentAll.every(Boolean);
+    msg.className = "msg ok";
+    msg.innerHTML = sent
+      ? "ส่งคำขอลาเรียบร้อย ระบบแจ้งเตือนไปยังผู้อนุมัติขั้นแรกทางอีเมลแล้ว"
+      : `บันทึกคำขอลาแล้ว (โหมดทดสอบ — ยังไม่ได้ตั้งค่าอีเมล) ลิงก์ผู้อนุมัติขั้นแรก: <a href="${link}">${link}</a>`;
+    $("leaveForm").reset(); $("daysOut").textContent = "—"; $("sigPrev").classList.remove("show");
+    await render();
+  } catch (err) {
+    console.error(err);
+    msg.className = "msg err"; msg.textContent = "เกิดข้อผิดพลาด: " + err.message;
+  } finally { btn.disabled = false; btn.textContent = "ส่งคำขอลา"; }
+});
+
+/* ---------- แสดงตาราง ---------- */
+let LEAVES = [];
+let ME = null;                       // ผู้อนุมัติที่เข้าสู่ระบบ {email, role, name}
+const badge = s => { const [t, c] = STATUS[s]; return `<span class="badge ${c}">${t}</span>`; };
+/* สีพื้นหลังประจำประเภทการลา (เรียงตามรายการในช่อง "ประเภทการลา") */
+const TYPE_PALETTE = [
+  ["#fde2e0", "#8a2b22"],   // ลาป่วย
+  ["#fff0c2", "#7a5200"],   // ลากิจส่วนตัว
+  ["#fbd9ec", "#8a2362"],   // ลาคลอดบุตร
+  ["#e6dcf9", "#4b2b8a"],   // ช่วยเหลือภริยาที่คลอดบุตร
+  ["#cdeee0", "#1f5c38"],   // ลาพักผ่อน
+  ["#ffe3c7", "#8a4a0f"],   // อุปสมบท / ฮัจย์
+  ["#dbe7f7", "#1f4a8a"],   // ตรวจเลือก / เตรียมพล
+  ["#d3f1f4", "#135a63"],   // ศึกษา ฝึกอบรม
+  ["#e2d3c2", "#5c4023"],   // องค์การระหว่างประเทศ
+  ["#e4e4e4", "#444444"],   // ติดตามคู่สมรส
+  ["#f0f5b8", "#5a5f0a"]    // ฟื้นฟูสมรรถภาพด้านอาชีพ
+];
+const TYPES = [...document.querySelectorAll("#type option")].map(o => o.value).filter(Boolean);
+const typeStyle = t => {
+  const i = TYPES.indexOf(t), [bg, fg] = i >= 0 ? TYPE_PALETTE[i % TYPE_PALETTE.length] : ["#eaf4ee", "#1f5c38"];
+  return `background:${bg};color:${fg}`;
+};
+const chipOf = l => `<span class="chip" style="${typeStyle(l.type)}">${esc(l.name)} · ${esc(l.type)}</span>`;
+const delBtn = l => ME ? ` <button class="x" type="button" data-del="${l.id}" title="ลบการลา">ลบ</button>` : "";
+
+function leaveDates(l) {            // วันที่ลาจริง = เริ่มลา ถึงก่อนวันกลับ 1 วัน
+  const out = []; const end = toDate(l.ret);
+  for (let d = toDate(l.start); d < end; d.setDate(d.getDate() + 1)) out.push(new Date(d));
+  return out;
+}
+
+/* คอลัมน์ของตารางล่วงหน้า 7 วัน: [ชื่อประเภทเต็ม, ชื่อย่อที่แสดงหัวตาราง] */
+const MATRIX_COLS = [
+  ["ลาป่วย", "ลาป่วย"],
+  ["ลากิจส่วนตัว", "ลากิจ"],
+  ["ลาคลอดบุตร", "ลาคลอด"],
+  ["การลาไปช่วยเหลือภริยาที่คลอดบุตร", "ลาช่วยภรรยา"],
+  ["การลาพักผ่อน", "ลาพักผ่อน"],
+  ["การลาอุปสมบทหรือการลาไปประกอบพิธีฮัจย์", "ลาอุปสมบท"],
+  ["การลาไปปฏิบัติงานในองค์การระหว่างประเทศ", "ลาไปต่างประเทศ"],
+  ["การลาเข้ารับการตรวจเลือกหรือเข้ารับการเตรียมพล", "ลาเตรียมพล"],
+  ["การลาไปศึกษา ฝึกอบรม ปฏิบัติการวิจัย หรือดูงาน", "ลาไปศึกษา"],
+  ["การลาติดตามคู่สมรส", "ลาติดตามคู่สมรส"],
+  ["การลาไปฟื้นฟูสมรรถภาพด้านอาชีพ", "ลาฟื้นฟู"]
+];
+const thNum = d => d.toLocaleDateString("th-TH-u-nu-thai", { day: "numeric", month: "short", year: "numeric" });
+
+/* การลาที่ไม่ถูกปฏิเสธ จัดกลุ่มตามวันที่ (key = yyyy-mm-dd) */
+function bookingsByDay() {
+  const byDay = new Map();
+  LEAVES.filter(l => l.status !== "rejected").forEach(l =>
+    leaveDates(l).forEach(d => {
+      const k = iso(d); if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(l);
+    }));
+  return byDay;
+}
+
+function renderUpcoming() {
+  // ล่วงหน้า 7 วัน (วันนี้ + 6 วันถัดไป): แสดงทุกวัน ช่องที่ไม่มีการลาเว้นว่าง
+  const from = today0(), days = [];
+  for (let i = 0; i < 7; i++) { const d = new Date(from); d.setDate(from.getDate() + i); days.push(d); }
+  $("upcomingList").innerHTML = matrixTable(days, bookingsByDay());
+}
+
+/* ตารางแถว = วันที่, คอลัมน์ = ประเภทการลา (ใช้ทั้งตาราง 7 วันและรายการ 2 เดือน) */
+function matrixTable(days, byDay) {
+  const todayKey = iso(today0());
+  const nameOf = l =>`<div class="mx-name">${esc(l.name)}${l.status !== "approved" ? '<span class="mx-pend">รออนุมัติ</span>' : ""}${delBtn(l)}</div>`;
+  const head = `<thead>
+    <tr><th rowspan="2" class="mx-date">วันที่</th><th colspan="${MATRIX_COLS.length}">ประเภทการลา</th></tr>
+    <tr>${MATRIX_COLS.map(([t, s]) => `<th class="mx-type" style="${typeStyle(t)}">${s}</th>`).join("")}</tr>
+  </thead>`;
+  const rows = days.map(d => {
+    const k = iso(d);
+    const list = (byDay.get(k) || []).slice().sort((a, b) => a.name.localeCompare(b.name, "th"));
+    return `<tr${k === todayKey ? ' class="today"' : ""}><td class="mx-date">${thNum(d)}</td>${
+      MATRIX_COLS.map(([t]) => {
+        const hit = list.filter(l => l.type === t);
+        return hit.length ? `<td class="mx-cell" style="${typeStyle(t)}">${hit.map(nameOf).join("")}</td>` : `<td class="mx-cell"></td>`;
+      }).join("")}</tr>`;
+  });
+  return `<div class="table-wrap"><table class="mx">${head}<tbody>${rows.join("")}</tbody></table></div>`;
+}
+
+function renderAll() {
+  // ล่วงหน้า 2 เดือน: ตารางแบบเดียวกัน แต่แสดงเฉพาะวันที่มีการลา
+  const from = today0(), to = new Date(from); to.setMonth(to.getMonth() + 2);
+  const byDay = bookingsByDay();
+  const days = [...byDay.keys()].sort().map(toDate).filter(d => d >= from && d <= to);
+  $("allList").innerHTML = days.length
+    ? matrixTable(days, byDay)
+    : `<div class="empty">ไม่มีการลาในช่วง 2 เดือนข้างหน้า</div>`;
+}
+
+$("toggleAll").addEventListener("click", () => {
+  const box = $("allList"), open = box.classList.toggle("hidden") === false;
+  $("toggleAll").textContent = open ? "ซ่อนการลาทั้งหมด" : "แสดงการลาทั้งหมด";
+  if (open) renderAll();
+});
+
+async function render() {
+  try { LEAVES = await db.all(); } catch (e) { console.error(e); LEAVES = []; }
+  renderUpcoming();
+  renderPending();
+  if (!$("allList").classList.contains("hidden")) renderAll();
+}
+
+/* ---------- หน้าอนุมัติ ---------- */
+async function approvalView(id, token) {
+  $("mainView").classList.add("hidden");
+  $("approveView").classList.remove("hidden");
+  const body = $("approveBody");
+  if (!ME) {                          // แก้สถานะได้เฉพาะผู้ที่เข้าสู่ระบบ
+    body.innerHTML = `<p>กรุณาเข้าสู่ระบบผู้อนุมัติเพื่อพิจารณาคำขอลานี้</p><button class="btn-primary" type="button" id="apLogin">เข้าสู่ระบบผู้อนุมัติ</button>`;
+    $("apLogin").onclick = () => $("authBtn").click();
+    return;
+  }
+  try {
+    const [leave, secret] = await Promise.all([db.get(id), db.secret(id)]);
+    let stage = 0;
+    if (leave && secret) {
+      if (leave.status === "pending1" && secret.t1 === token) stage = 1;
+      else if (leave.status === "pending2" && secret.t2 === token) stage = 2;
+    }
+    if (!stage) {
+      body.innerHTML = `<p class="empty">ลิงก์ไม่ถูกต้อง หรือคำขอนี้ได้รับการพิจารณาไปแล้ว</p><a href="${location.pathname}">กลับหน้าหลัก</a>`;
+      return;
+    }
+    if (stage !== ME.role) {
+      body.innerHTML = `<p class="empty">คำขอนี้ต้องพิจารณาโดย${stage === 1 ? "ผู้อนุมัติขั้นแรก" : "ผู้อนุมัติขั้นสุดท้าย"} (ขณะนี้เข้าสู่ระบบเป็น${esc(ME.name)})</p><a href="${location.pathname}">กลับหน้าหลัก</a>`;
+      return;
+    }
+    body.innerHTML = `
+      <p>${stage === 1 ? "ผู้อนุมัติขั้นแรก" : "ผู้อนุมัติขั้นสุดท้าย"}</p>
+      <dl class="detail">
+        <dt>ชื่อครูผู้ลา</dt><dd>${esc(leave.name)}</dd>
+        <dt>ประเภทการลา</dt><dd>${esc(leave.type)}</dd>
+        <dt>วันที่เริ่มลา</dt><dd>${thDate(leave.start)}</dd>
+        <dt>วันที่กลับมาปฏิบัติราชการ</dt><dd>${thDate(leave.ret)}</dd>
+        <dt>จำนวนวันลา</dt><dd>${leave.days} วัน</dd>
+        <dt>ลายเซ็นต์ครูผู้ลา</dt><dd id="apSig" class="muted">กำลังโหลด...</dd>
+      </dl>
+      <div class="actions">
+        <button class="btn-primary" id="okBtn">อนุมัติ</button>
+        <button class="btn-danger" id="noBtn">ไม่อนุมัติ</button>
+      </div>
+      <div id="apMsg" class="msg"></div>`;
+    getSignature(secret).then(
+      d => { $("apSig").className = ""; $("apSig").innerHTML = d ? `<img class="sig-img" src="${d}" alt="ลายเซ็นต์">` : "—"; },
+      err => { $("apSig").textContent = "โหลดลายเซ็นต์ไม่สำเร็จ: " + err.message; });
+    const done = (cls, html) => { $("apMsg").className = "msg " + cls; $("apMsg").innerHTML = html; body.querySelector(".actions").remove(); };
+    $("okBtn").onclick = async () => {
+      try { done("ok", await approveStep(id, stage, leave, secret)); }
+      catch (e) { done("err", "เกิดข้อผิดพลาด: " + e.message); }
+    };
+    $("noBtn").onclick = async () => {
+      if (!confirm("ยืนยันไม่อนุมัติคำขอลานี้?")) return;
+      try { await db.update(id, { status: "rejected", rejectedAt: new Date().toISOString() }); done("ok", "บันทึกการไม่อนุมัติแล้ว"); }
+      catch (e) { done("err", "เกิดข้อผิดพลาด: " + e.message); }
+    };
+  } catch (e) { body.innerHTML = `<div class="msg err">เกิดข้อผิดพลาด: ${esc(e.message)}</div>`; }
+}
+
+/* ---------- ส่วนผู้อนุมัติ: เข้าสู่ระบบ / รายการรออนุมัติ / ลบ ---------- */
+const roleOf = email => {
+  const e = (email || "").toLowerCase();
+  if (e && APPROVERS1.some(a => a.email.toLowerCase() === e)) return 1;
+  if (e && e === APPROVER2.email.toLowerCase()) return 2;
+  return 0;
+};
+const panelMsg = (cls, html) => { const m = $("panelMsg"); m.className = "msg " + cls; m.innerHTML = html; };
+const openModal = id => $(id).classList.remove("hidden");
+const closeModal = id => $(id).classList.add("hidden");
+
+function applyMe(email) {
+  const role = roleOf(email);
+  if (email && !role) { authApi.logout(); return; }      // ไม่ใช่อีเมลผู้อนุมัติ
+  ME = role ? { email, role, name: role === 1 ? APPROVER1_LABEL : APPROVER2.name } : null;
+  document.querySelectorAll(".approver-only").forEach(el => el.classList.toggle("hidden", !ME));
+  $("meLabel").textContent = ME ? ME.name : "";
+  $("meLabel").classList.toggle("hidden", !ME);
+  $("authBtn").textContent = ME ? "ออกจากระบบ" : "เข้าสู่ระบบผู้อนุมัติ";
+  if (q.get("id") && q.get("t")) approvalView(q.get("id"), q.get("t")); else render();
+}
+
+function renderPending() {
+  if (!ME) { $("pendingList").innerHTML = ""; return; }
+  const rows = LEAVES.filter(l => l.status === "pending1" || l.status === "pending2")
+    .sort((a, b) => a.start.localeCompare(b.start));
+  $("pendingList").innerHTML = rows.length
+    ? rows.map(l => {
+        const mine = (l.status === "pending1" ? 1 : 2) === ME.role;
+        return `<div class="pend">
+          <div><b>${esc(l.name)}</b> · ${esc(l.type)}<br>
+            <span class="muted small">${thDate(l.start)} – กลับ ${thDate(l.ret)} (${l.days} วัน)</span> ${badge(l.status)}</div>
+          <div class="pend-act"><button class="btn-ghost sm" type="button" data-sig="${l.id}">ดูลายเซ็นต์</button>${mine
+            ? `<button class="btn-primary sm" type="button" data-ok="${l.id}">อนุมัติ</button><button class="btn-danger sm" type="button" data-no="${l.id}">ไม่อนุมัติ</button>`
+            : ""}<button class="btn-danger sm" type="button" data-del="${l.id}">ลบ</button></div>
+        </div>`;
+      }).join("")
+    : `<div class="empty">ไม่มีรายการรออนุมัติ</div>`;
+}
+
+document.addEventListener("click", async e => {
+  const sb = e.target.closest("[data-sig]");
+  if (sb && ME) {
+    try {
+      $("sigView").innerHTML = `<p class="muted">กำลังโหลด...</p>`;
+      openModal("sigModal");
+      const d = await getSignature(await db.secret(sb.dataset.sig));
+      $("sigView").innerHTML = d ? `<img class="sig-img" src="${d}" alt="ลายเซ็นต์">` : `<p class="muted">ไม่มีลายเซ็นต์</p>`;
+    } catch (err) { $("sigView").innerHTML = `<p class="muted">เปิดลายเซ็นต์ไม่สำเร็จ: ${esc(err.message)}</p>`; }
+    return;
+  }
+  const b = e.target.closest("[data-ok],[data-no],[data-del]");
+  if (!b || !ME) return;
+  const id = b.dataset.ok || b.dataset.no || b.dataset.del;
+  const l = LEAVES.find(x => x.id === id);
+  if (!l) return;
+  const who = `${l.name} (${thDate(l.start)} – ${thDate(l.ret)})`;
+  b.disabled = true;
+  try {
+    if (b.dataset.del !== undefined) {
+      if (!confirm(`ยืนยันลบการลาของ ${who} ทั้งรายการ?`)) { b.disabled = false; return; }
+      await db.remove(id);
+      panelMsg("ok", `ลบการลาของ ${esc(l.name)} เรียบร้อย`);
+    } else if (b.dataset.ok !== undefined) {
+      const stage = l.status === "pending1" ? 1 : 2;
+      if (stage !== ME.role) { b.disabled = false; return; }
+      const secret = await db.secret(id);
+      if (!secret) throw new Error("ไม่พบข้อมูลสำหรับอนุมัติ");
+      panelMsg("ok", await approveStep(id, stage, l, secret));
+    } else {
+      if (!confirm(`ยืนยันไม่อนุมัติการลาของ ${who}?`)) { b.disabled = false; return; }
+      await db.update(id, { status: "rejected", rejectedAt: new Date().toISOString() });
+      panelMsg("ok", `บันทึกการไม่อนุมัติการลาของ ${esc(l.name)} แล้ว`);
+    }
+    await render();
+  } catch (err) {
+    console.error(err);
+    panelMsg("err", "เกิดข้อผิดพลาด: " + esc(err.message));
+    b.disabled = false;
+  }
+});
+
+/* ปุ่มเข้าสู่ระบบ / ออกจากระบบ */
+$("authBtn").addEventListener("click", () => {
+  if (ME) { authApi.logout(); return; }
+  $("lgMsg").className = "msg";
+  $("lgHint").textContent = DEMO ? `โหมดทดสอบ: ใช้รหัสผ่าน ${DEMO_PASSWORD} กับอีเมลผู้อนุมัติที่ตั้งไว้ในโค้ด` : "";
+  openModal("loginModal");
+  $("lgEmail").focus();
+});
+
+$("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const m = $("lgMsg"); m.className = "msg";
+  const email = $("lgEmail").value.trim();
+  if (!roleOf(email)) { m.className = "msg err"; m.textContent = "อีเมลนี้ไม่ได้ลงทะเบียนเป็นผู้อนุมัติ"; return; }
+  const btn = $("lgBtn"); btn.disabled = true; btn.textContent = "กำลังตรวจสอบ...";
+  try {
+    await authApi.login(email, $("lgPass").value);
+    $("loginForm").reset(); closeModal("loginModal");
+  } catch (err) {
+    m.className = "msg err";
+    m.textContent = /auth\/(invalid|wrong|user)/.test(err.code || "") || err.message === "รหัสผ่านไม่ถูกต้อง"
+      ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง" : "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
+  } finally { btn.disabled = false; btn.textContent = "เข้าสู่ระบบ"; }
+});
+
+/* ปิด pop up */
+document.querySelectorAll(".modal-back").forEach(back => {
+  back.addEventListener("click", e => { if (e.target === back || e.target.closest("[data-close]")) back.classList.add("hidden"); });
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") document.querySelectorAll(".modal-back").forEach(b => b.classList.add("hidden"));
+});
+
+/* ---------- รายงานการลา (pop up + PDF) ---------- */
+const addMonths = (d, n) => { const x = new Date(d); x.setMonth(x.getMonth() + n); return x; };
+
+$("reportBtn").addEventListener("click", () => {
+  const t = today0();
+  const lo = addMonths(t, -3), hi = addMonths(t, 3);
+  $("rpFrom").min = $("rpTo").min = iso(lo);
+  $("rpFrom").max = $("rpTo").max = iso(hi);
+  $("rpFrom").value = iso(new Date(t.getFullYear(), t.getMonth(), 1));
+  $("rpTo").value = iso(new Date(t.getFullYear(), t.getMonth() + 1, 0));
+  $("rpMsg").className = "msg";
+  openModal("reportModal");
+});
+
+function buildReportPages(fromS, toS) {
+  const from = toDate(fromS), to = toDate(toS);
+  const items = LEAVES.filter(l => l.status !== "rejected")
+    .map(l => ({ l, n: leaveDates(l).filter(d => d >= from && d <= to).length }))
+    .filter(x => x.n > 0)
+    .sort((a, b) => a.l.start.localeCompare(b.l.start) || a.l.name.localeCompare(b.l.name, "th"));
+
+  const stage = $("rpStage"); stage.innerHTML = "";
+  const pages = [];
+  const newPage = first => {
+    const p = document.createElement("div"); p.className = "rp-page";
+    p.innerHTML = `<div class="rp-body">${first
+        ? `<div class="rp-title">รายงานการลาข้าราชการครู</div><div class="rp-sub">โรงเรียนสระแก้ว</div><div class="rp-sub">ช่วงวันที่ ${thDate(fromS)} – ${thDate(toS)}</div>` : ""}
+      <table class="rp-table"><colgroup><col style="width:5%"><col style="width:16%"><col style="width:22%"><col style="width:11%"><col style="width:11%"><col style="width:6%"><col style="width:11%"><col style="width:18%"></colgroup>
+      <thead><tr><th>ที่</th><th>ชื่อครู</th><th>ประเภทการลา</th><th>เริ่มลา</th><th>กลับปฏิบัติราชการ</th><th>วันลา</th><th>สถานะ</th><th>ลายเซ็นต์ครู</th></tr></thead><tbody></tbody></table></div>
+      <div class="rp-foot"><span>พิมพ์เมื่อ ${thDate(iso(new Date()))}</span><span class="rp-no"></span></div>`;
+    stage.appendChild(p); pages.push(p);
+    return { p, body: p.querySelector(".rp-body"), tbody: p.querySelector("tbody") };
+  };
+  const over = c => c.body.scrollHeight > c.body.clientHeight + 1;
+
+  let cur = newPage(true);
+  const addRow = html => {
+    const tr = document.createElement("tr"); tr.innerHTML = html;
+    cur.tbody.appendChild(tr);
+    if (over(cur) && cur.tbody.children.length > 1) {
+      cur.tbody.removeChild(tr); cur = newPage(false); cur.tbody.appendChild(tr);
+    }
+  };
+  if (!items.length) addRow(`<td colspan="8" style="text-align:center;color:#6b7a72">ไม่มีการลาในช่วงวันที่ที่เลือก</td>`);
+  items.forEach((x, i) => addRow(
+    `<td>${i + 1}</td><td>${esc(x.l.name)}</td><td>${esc(x.l.type)}</td><td>${thDate(x.l.start)}</td><td>${thDate(x.l.ret)}</td><td>${x.n}</td><td>${STATUS[x.l.status][0]}</td><td style="text-align:center">${SIG_BY_LEAVE[x.l.id] ? `<img src="${SIG_BY_LEAVE[x.l.id]}" style="height:30px;max-width:100%;object-fit:contain" alt="">` : "—"}</td>`));
+
+  const total = items.reduce((s, x) => s + x.n, 0);
+  const sum = document.createElement("div"); sum.className = "rp-sum";
+  sum.innerHTML = `รวม ${items.length} รายการ · วันลารวมในช่วงที่เลือก ${total} วัน
+    <div class="rp-note">หมายเหตุ: "วันลา" นับเฉพาะวันที่อยู่ในช่วงที่เลือก (ไม่นับวันที่กลับมาปฏิบัติราชการ)</div>`;
+  cur.body.appendChild(sum);
+  if (over(cur)) {
+    cur.body.removeChild(sum); cur = newPage(false);
+    cur.p.querySelector("table").remove(); cur.body.appendChild(sum);
+  }
+  pages.forEach((p, i) => { p.querySelector(".rp-no").textContent = `หน้า ${i + 1}/${pages.length}`; });
+  return pages;
+}
+
+async function makePdf(fromS, toS) {
+  if (!window.html2canvas || !window.jspdf) throw new Error("โหลดไลบรารีสร้าง PDF ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ต");
+  try {
+    await Promise.all([document.fonts.load('400 12px "Noto Sans Thai"'), document.fonts.load('600 12px "Noto Sans Thai"')]);
+  } catch (e) { /* ใช้ฟอนต์สำรอง */ }
+  const from = toDate(fromS), to = toDate(toS);
+  SIG_BY_LEAVE = {};
+  await Promise.all(LEAVES.filter(l => l.status !== "rejected" && leaveDates(l).some(d => d >= from && d <= to)).map(async l => {
+    try { const d = await getSignature(await db.secret(l.id)); if (d) SIG_BY_LEAVE[l.id] = d; }
+    catch (e) { console.warn("signature", l.id, e); }
+  }));
+  const pages = buildReportPages(fromS, toS);
+  await Promise.all([...document.querySelectorAll("#rpStage img")].map(i => i.decode ? i.decode().catch(() => {}) : 0));
+  const pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  for (let i = 0; i < pages.length; i++) {
+    const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+    if (i > 0) pdf.addPage();
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297);
+  }
+  $("rpStage").innerHTML = "";
+  pdf.save(`leave-report_${fromS}_${toS}.pdf`);
+}
+
+$("rpBtn").addEventListener("click", async () => {
+  const m = $("rpMsg"); m.className = "msg";
+  const f = $("rpFrom").value, t = $("rpTo").value;
+  const lo = iso(addMonths(today0(), -3)), hi = iso(addMonths(today0(), 3));
+  if (!f || !t) { m.className = "msg err"; m.textContent = "กรุณาเลือกวันที่เริ่มต้นและวันที่สิ้นสุด"; return; }
+  if (f > t) { m.className = "msg err"; m.textContent = "วันที่เริ่มต้นต้องไม่เกินวันที่สิ้นสุด"; return; }
+  if (f < lo || t > hi) { m.className = "msg err"; m.textContent = "เลือกได้เฉพาะช่วงย้อนหลัง 3 เดือน ถึงล่วงหน้า 3 เดือน"; return; }
+  const btn = $("rpBtn"); btn.disabled = true; btn.textContent = "กำลังสร้าง PDF...";
+  try {
+    await render();                       // ใช้ข้อมูลล่าสุด
+    await makePdf(f, t);
+    closeModal("reportModal");
+  } catch (err) {
+    console.error(err);
+    m.className = "msg err"; m.textContent = "สร้างรายงานไม่สำเร็จ: " + err.message;
+  } finally { btn.disabled = false; btn.textContent = "บันทึกเป็น PDF"; }
+});
+
+/* ---------- เริ่มต้น ---------- */
+const q = new URLSearchParams(location.search);
+authApi.onChange(applyMe);             // หน้าลิงก์อนุมัติจะแสดงหลังตรวจสถานะการเข้าสู่ระบบ
+if (!(q.get("id") && q.get("t"))) render();
+</script>
+</body>
+</html>
